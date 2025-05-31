@@ -30,7 +30,6 @@ class _MealTrackingScreenState extends State<MealTrackingScreen> {
   @override
   void initState() {
     super.initState();
-    print('MealTrackingScreen initState - PetId: ${widget.petId}'); // Debug için
     _beslenmeKayitlariniYukle();
   }
 
@@ -41,13 +40,11 @@ class _MealTrackingScreenState extends State<MealTrackingScreen> {
   }
 
   Future<void> _beslenmeKayitlariniYukle() async {
-    print('Beslenme kayıtları yükleniyor...'); // Debug için
     setState(() => _isLoading = true);
     
     try {
       final viewModel = Provider.of<MealTrackingViewModel>(context, listen: false);
       final kayitlar = await viewModel.petBeslenmeKayitlariniGetir(widget.petId);
-      print('Yüklenen kayıt sayısı: ${kayitlar.length}'); // Debug için
       
       if (mounted) {
         setState(() {
@@ -56,7 +53,6 @@ class _MealTrackingScreenState extends State<MealTrackingScreen> {
         });
       }
     } catch (e) {
-      print('Kayıtları yüklerken hata: $e'); // Debug için
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +64,6 @@ class _MealTrackingScreenState extends State<MealTrackingScreen> {
 
   Future<void> _beslenmeKaydet() async {
     if (_formKey.currentState!.validate()) {
-      print('Beslenme kaydı ekleniyor...'); // Debug için
       setState(() => _isLoading = true);
 
       try {
@@ -81,8 +76,6 @@ class _MealTrackingScreenState extends State<MealTrackingScreen> {
           suIcti: _suIcti,
           tarih: DateTime.now(),
         );
-
-        print('Kaydedilecek veri: ${beslenmeKaydi.toMap()}'); // Debug için
 
         await viewModel.beslenmeKaydiEkle(beslenmeKaydi);
         await _beslenmeKayitlariniYukle();
@@ -101,7 +94,6 @@ class _MealTrackingScreenState extends State<MealTrackingScreen> {
           );
         }
       } catch (e) {
-        print('Kayıt eklerken hata: $e'); // Debug için
         if (mounted) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(

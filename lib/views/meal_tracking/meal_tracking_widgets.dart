@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/meal_tracking_model.dart';
+import '../../utils/meal_tracking_utils.dart';
 
 class BeslenmeKayitFormu extends StatelessWidget {
   final YemekTuru secilenYemekTuru;
@@ -46,7 +47,7 @@ class BeslenmeKayitFormu extends StatelessWidget {
               items: YemekTuru.values.map((YemekTuru tur) {
                 return DropdownMenuItem<YemekTuru>(
                   value: tur,
-                  child: Text(_yemekTuruToString(tur)),
+                  child: Text(yemekTuruToString(tur)),
                 );
               }).toList(),
               onChanged: onYemekTuruChanged,
@@ -61,7 +62,7 @@ class BeslenmeKayitFormu extends StatelessWidget {
               items: YemekSaati.values.map((YemekSaati saat) {
                 return DropdownMenuItem<YemekSaati>(
                   value: saat,
-                  child: Text(_yemekSaatiToString(saat)),
+                  child: Text(yemekSaatiToString(saat)),
                 );
               }).toList(),
               onChanged: onYemekSaatiChanged,
@@ -94,30 +95,6 @@ class BeslenmeKayitFormu extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _yemekTuruToString(YemekTuru tur) {
-    switch (tur) {
-      case YemekTuru.kuruMama:
-        return 'Kuru Mama';
-      case YemekTuru.yasMama:
-        return 'Yaş Mama';
-      case YemekTuru.evYemegi:
-        return 'Ev Yemeği';
-      case YemekTuru.diger:
-        return 'Diğer';
-    }
-  }
-
-  String _yemekSaatiToString(YemekSaati saat) {
-    switch (saat) {
-      case YemekSaati.sabah:
-        return 'Sabah';
-      case YemekSaati.ogle:
-        return 'Öğle';
-      case YemekSaati.aksam:
-        return 'Akşam';
-    }
   }
 }
 
@@ -162,7 +139,7 @@ class BeslenmeGecmisi extends StatelessWidget {
                       color: kayit.suIcti ? Colors.blue : Colors.orange,
                     ),
                     title: Text(
-                      '${_yemekTuruToString(kayit.yemekTuru)} - ${_yemekSaatiToString(kayit.yemekSaati)}',
+                      '${yemekTuruToString(kayit.yemekTuru)} - ${yemekSaatiToString(kayit.yemekSaati)}',
                     ),
                     subtitle: Text(
                       '${kayit.miktar} gram - ${kayit.tarih.toString().split('.')[0]}',
@@ -180,29 +157,5 @@ class BeslenmeGecmisi extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _yemekTuruToString(YemekTuru tur) {
-    switch (tur) {
-      case YemekTuru.kuruMama:
-        return 'Kuru Mama';
-      case YemekTuru.yasMama:
-        return 'Yaş Mama';
-      case YemekTuru.evYemegi:
-        return 'Ev Yemeği';
-      case YemekTuru.diger:
-        return 'Diğer';
-    }
-  }
-
-  String _yemekSaatiToString(YemekSaati saat) {
-    switch (saat) {
-      case YemekSaati.sabah:
-        return 'Sabah';
-      case YemekSaati.ogle:
-        return 'Öğle';
-      case YemekSaati.aksam:
-        return 'Akşam';
-    }
   }
 } 
