@@ -89,7 +89,7 @@ void showAddPetDialog(BuildContext context) {
   String ad = "", tur = "", cins = "", fotograf = "", saglikDurumu = "";
   int yas = 0;
   double agirlik = 0.0;
-  DateTime? sonVeterinerZiyaretiTarihi;
+  String? sonVeterinerZiyaretiTarihi;
   List<String> alinanAsilar = [];
 
   showDialog(
@@ -108,7 +108,7 @@ void showAddPetDialog(BuildContext context) {
               TextField(onChanged: (value) { saglikDurumu = value; }, decoration: const InputDecoration(labelText: "Sağlık Durumu")),
               TextField(onChanged: (value) { yas = int.tryParse(value) ?? 0; }, decoration: const InputDecoration(labelText: "Yaş"), keyboardType: TextInputType.number),
               TextField(onChanged: (value) { agirlik = double.tryParse(value) ?? 0.0; }, decoration: const InputDecoration(labelText: "Ağırlık"), keyboardType: TextInputType.number),
-              TextField(onChanged: (value) { sonVeterinerZiyaretiTarihi = DateTime.tryParse(value); }, decoration: const InputDecoration(labelText: "Son Veteriner Ziyareti Tarihi (YYYY-MM-DD)")),
+              TextField(onChanged: (value) { sonVeterinerZiyaretiTarihi = value; }, decoration: const InputDecoration(labelText: "Son Veteriner Ziyareti Tarihi")),
               TextField(onChanged: (value) { alinanAsilar = value.split(',').map((e) => e.trim()).toList(); }, decoration: const InputDecoration(labelText: "Alınan Aşılar (virgülle ayırın)")),
             ],
           ),
@@ -134,7 +134,7 @@ void _showEditPetDialog(BuildContext context, Pet pet, int index) {
   String saglikDurumu = pet.saglikDurumu;
   int yas = pet.yas;
   double agirlik = pet.agirlik;
-  DateTime? sonVeterinerZiyaretiTarihi = pet.sonVeterinerZiyaretiTarihi;
+  String? sonVeterinerZiyaretiTarihi = pet.sonVeterinerZiyaretiTarihi;
   List<String> alinanAsilar = List.from(pet.alinanAsilar);
 
   showDialog(
@@ -184,9 +184,9 @@ void _showEditPetDialog(BuildContext context, Pet pet, int index) {
                 keyboardType: TextInputType.number
               ),
               TextField(
-                controller: TextEditingController(text: sonVeterinerZiyaretiTarihi?.toIso8601String() ?? ""),
-                onChanged: (value) { sonVeterinerZiyaretiTarihi = DateTime.tryParse(value); },
-                decoration: const InputDecoration(labelText: "Son Veteriner Ziyareti Tarihi (YYYY-MM-DD)")
+                controller: TextEditingController(text: sonVeterinerZiyaretiTarihi ?? ""),
+                onChanged: (value) { sonVeterinerZiyaretiTarihi = value.isEmpty ? null : value; },
+                decoration: const InputDecoration(labelText: "Son Veteriner Ziyareti Tarihi")
               ),
               TextField(
                 controller: TextEditingController(text: alinanAsilar.join(", ")),

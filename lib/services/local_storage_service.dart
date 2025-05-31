@@ -24,10 +24,9 @@ class LocalStorageService {
       "fotograf": pet.fotograf,
       "agirlik": pet.agirlik,
       "saglikDurumu": pet.saglikDurumu,
-      "sonVeterinerZiyaretiTarihi": pet.sonVeterinerZiyaretiTarihi?.toIso8601String(),
+      "sonVeterinerZiyaretiTarihi": pet.sonVeterinerZiyaretiTarihi,
       "alinanAsilar": pet.alinanAsilar.join(",")
     });
-    print("Pet eklendi: ${pet.ad} (${pet.tur})");
   }
 
   Future<List<Pet>> getPets() async {
@@ -43,7 +42,7 @@ class LocalStorageService {
         fotograf: map["fotograf"] as String,
         agirlik: map["agirlik"] as double,
         saglikDurumu: map["saglikDurumu"] as String,
-        sonVeterinerZiyaretiTarihi: map["sonVeterinerZiyaretiTarihi"] != null ? DateTime.parse(map["sonVeterinerZiyaretiTarihi"] as String) : null,
+        sonVeterinerZiyaretiTarihi: map["sonVeterinerZiyaretiTarihi"] as String?,
         alinanAsilar: (map["alinanAsilar"] as String).split(",").map((e) => e.trim()).toList(),
       );
     });
@@ -70,7 +69,7 @@ class LocalStorageService {
         "fotograf": newPet.fotograf,
         "agirlik": newPet.agirlik,
         "saglikDurumu": newPet.saglikDurumu,
-        "sonVeterinerZiyaretiTarihi": newPet.sonVeterinerZiyaretiTarihi?.toIso8601String(),
+        "sonVeterinerZiyaretiTarihi": newPet.sonVeterinerZiyaretiTarihi,
         "alinanAsilar": newPet.alinanAsilar.join(",")
       },
       where: "ad = ? AND tur = ? AND cins = ?",

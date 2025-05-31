@@ -18,7 +18,7 @@ class PetDetailScreen extends StatelessWidget {
     String saglikDurumu = pet.saglikDurumu;
     int yas = pet.yas;
     double agirlik = pet.agirlik;
-    DateTime? sonVeterinerZiyaretiTarihi = pet.sonVeterinerZiyaretiTarihi;
+    String? sonVeterinerZiyaretiTarihi = pet.sonVeterinerZiyaretiTarihi;
     List<String> alinanAsilar = List.from(pet.alinanAsilar);
 
     showDialog(
@@ -68,8 +68,8 @@ class PetDetailScreen extends StatelessWidget {
                   keyboardType: TextInputType.number
                 ),
                 TextField(
-                  controller: TextEditingController(text: sonVeterinerZiyaretiTarihi?.toIso8601String() ?? ""),
-                  onChanged: (value) { sonVeterinerZiyaretiTarihi = DateTime.tryParse(value); },
+                  controller: TextEditingController(text: sonVeterinerZiyaretiTarihi ?? ""),
+                  onChanged: (value) { sonVeterinerZiyaretiTarihi = value.isEmpty ? null : value; },
                   decoration: const InputDecoration(labelText: "Son Veteriner Ziyareti Tarihi (YYYY-MM-DD)")
                 ),
                 TextField(

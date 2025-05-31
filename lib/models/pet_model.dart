@@ -8,7 +8,7 @@ class Pet {
   final String fotograf;
   final double agirlik;
   final String saglikDurumu;
-  final DateTime? sonVeterinerZiyaretiTarihi;
+  final String? sonVeterinerZiyaretiTarihi;
   final List<String> alinanAsilar;
 
   Pet({

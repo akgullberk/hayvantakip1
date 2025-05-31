@@ -46,7 +46,7 @@ class PetDetailWidget extends StatelessWidget {
               _buildInfoRow("Sağlık Durumu", pet.saglikDurumu),
               _buildInfoRow(
                 "Son Veteriner Ziyareti",
-                pet.sonVeterinerZiyaretiTarihi?.toString().split(" ")[0] ?? "Belirtilmemiş"
+                pet.sonVeterinerZiyaretiTarihi ?? "Belirtilmemiş"
               ),
               if (pet.alinanAsilar.isNotEmpty)
                 Column(
