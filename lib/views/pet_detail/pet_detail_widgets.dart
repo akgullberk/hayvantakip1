@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/pet_model.dart';
 import '../meal_tracking/meal_tracking_screen.dart';
+import '../health_tracking/health_tracking_screen.dart';
 
 class PetDetailWidget extends StatelessWidget {
   final Pet pet;
@@ -99,6 +100,21 @@ class PetDetailWidget extends StatelessWidget {
           },
           icon: const Icon(Icons.restaurant),
           label: const Text('Beslenme Takibi'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HealthTrackingScreen(pet: pet),
+              ),
+            );
+          },
+          icon: const Icon(Icons.medical_services),
+          label: const Text('Sağlık Takibi'),
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           ),

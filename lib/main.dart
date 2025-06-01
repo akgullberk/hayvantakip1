@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 // ViewModel importları
 import 'viewmodels/pet_viewmodel.dart';
 import 'viewmodels/meal_tracking_viewmodel.dart';
+import 'viewmodels/health_tracking_viewmodel.dart';
 
 // Ana ekran importu
 import 'views/home/home_screen.dart';
@@ -25,6 +26,9 @@ void main() {
             vm.initDatabase();
             return vm;
           },
+        ),
+        ChangeNotifierProvider(
+          create: (context) => HealthTrackingViewModel(),
         ),
       ],
       child: const MyApp(),
