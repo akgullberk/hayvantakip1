@@ -184,8 +184,8 @@ class LocalStorageService {
         'sonVeterinerZiyaretiTarihi': newPet.sonVeterinerZiyaretiTarihi?.toIso8601String(),
         'alinanAsilar': newPet.alinanAsilar.join(','),
       },
-      where: 'ad = ?',
-      whereArgs: [oldPet.ad],
+      where: 'ad = ? AND tur = ? AND cins = ?',
+      whereArgs: [oldPet.ad, oldPet.tur, oldPet.cins],
     );
   }
 

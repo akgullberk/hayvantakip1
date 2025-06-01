@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
 import '../../models/pet_model.dart';
 import '../meal_tracking/meal_tracking_screen.dart';
 import '../health_tracking/health_tracking_screen.dart';
@@ -20,11 +21,19 @@ class PetDetailWidget extends StatelessWidget {
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child: Image.network(
-                  pet.fotograf,
+                child: Image.file(
+                  File(pet.fotograf),
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: double.infinity,
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.pets, size: 100, color: Colors.grey),
+                    );
+                  },
                 ),
               ),
             ),
