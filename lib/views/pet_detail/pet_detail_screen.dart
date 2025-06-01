@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../models/pet_model.dart';
 import '../../viewmodels/pet_viewmodel.dart';
 import 'pet_detail_widgets.dart';
@@ -18,7 +19,7 @@ class PetDetailScreen extends StatelessWidget {
     String saglikDurumu = pet.saglikDurumu;
     int yas = pet.yas;
     double agirlik = pet.agirlik;
-    String? sonVeterinerZiyaretiTarihi = pet.sonVeterinerZiyaretiTarihi;
+    DateTime? sonVeterinerZiyaretiTarihi = pet.sonVeterinerZiyaretiTarihi;
     List<String> alinanAsilar = List.from(pet.alinanAsilar);
 
     showDialog(
@@ -67,10 +68,23 @@ class PetDetailScreen extends StatelessWidget {
                   decoration: const InputDecoration(labelText: "Ağırlık"),
                   keyboardType: TextInputType.number
                 ),
-                TextField(
-                  controller: TextEditingController(text: sonVeterinerZiyaretiTarihi ?? ""),
-                  onChanged: (value) { sonVeterinerZiyaretiTarihi = value.isEmpty ? null : value; },
-                  decoration: const InputDecoration(labelText: "Son Veteriner Ziyareti Tarihi (YYYY-MM-DD)")
+                ListTile(
+                  title: Text(sonVeterinerZiyaretiTarihi == null 
+                    ? "Son Veteriner Ziyareti Tarihi Seçin" 
+                    : "Seçilen Tarih: ${DateFormat('dd/MM/yyyy').format(sonVeterinerZiyaretiTarihi!)}"),
+                  trailing: const Icon(Icons.calendar_today),
+                  onTap: () async {
+                    final DateTime? secilenTarih = await showDatePicker(
+                      context: context,
+                      initialDate: sonVeterinerZiyaretiTarihi ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (secilenTarih != null) {
+                      sonVeterinerZiyaretiTarihi = secilenTarih;
+                      (context as Element).markNeedsBuild();
+                    }
+                  },
                 ),
                 TextField(
                   controller: TextEditingController(text: alinanAsilar.join(", ")),

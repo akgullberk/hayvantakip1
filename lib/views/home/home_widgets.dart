@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../models/pet_model.dart';
 import '../../viewmodels/pet_viewmodel.dart';
 import '../pet_detail/pet_detail_screen.dart';
@@ -89,37 +90,101 @@ void showAddPetDialog(BuildContext context) {
   String ad = "", tur = "", cins = "", fotograf = "", saglikDurumu = "";
   int yas = 0;
   double agirlik = 0.0;
-  String? sonVeterinerZiyaretiTarihi;
+  DateTime? sonVeterinerZiyaretiTarihi;
   List<String> alinanAsilar = [];
 
   showDialog(
     context: context,
     builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
       return AlertDialog(
         title: const Text("Evcil Hayvan Ekle"),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(onChanged: (value) { ad = value; }, decoration: const InputDecoration(labelText: "Ad")),
-              TextField(onChanged: (value) { tur = value; }, decoration: const InputDecoration(labelText: "Tür")),
-              TextField(onChanged: (value) { cins = value; }, decoration: const InputDecoration(labelText: "Cins")),
-              TextField(onChanged: (value) { fotograf = value; }, decoration: const InputDecoration(labelText: "Fotoğraf (URL veya dosya yolu)")),
-              TextField(onChanged: (value) { saglikDurumu = value; }, decoration: const InputDecoration(labelText: "Sağlık Durumu")),
-              TextField(onChanged: (value) { yas = int.tryParse(value) ?? 0; }, decoration: const InputDecoration(labelText: "Yaş"), keyboardType: TextInputType.number),
-              TextField(onChanged: (value) { agirlik = double.tryParse(value) ?? 0.0; }, decoration: const InputDecoration(labelText: "Ağırlık"), keyboardType: TextInputType.number),
-              TextField(onChanged: (value) { sonVeterinerZiyaretiTarihi = value; }, decoration: const InputDecoration(labelText: "Son Veteriner Ziyareti Tarihi")),
-              TextField(onChanged: (value) { alinanAsilar = value.split(',').map((e) => e.trim()).toList(); }, decoration: const InputDecoration(labelText: "Alınan Aşılar (virgülle ayırın)")),
+                  TextField(
+                    onChanged: (value) { ad = value; }, 
+                    decoration: const InputDecoration(labelText: "Ad")
+                  ),
+                  TextField(
+                    onChanged: (value) { tur = value; }, 
+                    decoration: const InputDecoration(labelText: "Tür")
+                  ),
+                  TextField(
+                    onChanged: (value) { cins = value; }, 
+                    decoration: const InputDecoration(labelText: "Cins")
+                  ),
+                  TextField(
+                    onChanged: (value) { fotograf = value; }, 
+                    decoration: const InputDecoration(labelText: "Fotoğraf (URL veya dosya yolu)")
+                  ),
+                  TextField(
+                    onChanged: (value) { saglikDurumu = value; }, 
+                    decoration: const InputDecoration(labelText: "Sağlık Durumu")
+                  ),
+                  TextField(
+                    onChanged: (value) { yas = int.tryParse(value) ?? 0; }, 
+                    decoration: const InputDecoration(labelText: "Yaş"), 
+                    keyboardType: TextInputType.number
+                  ),
+                  TextField(
+                    onChanged: (value) { agirlik = double.tryParse(value) ?? 0.0; }, 
+                    decoration: const InputDecoration(labelText: "Ağırlık"), 
+                    keyboardType: TextInputType.number
+                  ),
+                  ListTile(
+                    title: Text(sonVeterinerZiyaretiTarihi == null 
+                      ? "Son Veteriner Ziyareti Tarihi Seçin" 
+                      : "Seçilen Tarih: ${DateFormat('dd/MM/yyyy').format(sonVeterinerZiyaretiTarihi!)}"),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final DateTime? secilenTarih = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
+                      );
+                      if (secilenTarih != null) {
+                        setState(() {
+                          sonVeterinerZiyaretiTarihi = secilenTarih;
+                        });
+                      }
+                    },
+                  ),
+                  TextField(
+                    onChanged: (value) { alinanAsilar = value.split(',').map((e) => e.trim()).toList(); }, 
+                    decoration: const InputDecoration(labelText: "Alınan Aşılar (virgülle ayırın)")
+                  ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () { Navigator.of(context).pop(); }, child: const Text("İptal")),
-          TextButton(onPressed: () async {
-            await petViewModel.addPet(ad, tur, yas, cins, fotograf, agirlik, saglikDurumu, sonVeterinerZiyaretiTarihi, alinanAsilar);
+              TextButton(
+                onPressed: () { Navigator.of(context).pop(); }, 
+                child: const Text("İptal")
+              ),
+              TextButton(
+                onPressed: () async {
+                  await petViewModel.addPet(
+                    ad, 
+                    tur, 
+                    yas, 
+                    cins, 
+                    fotograf, 
+                    agirlik, 
+                    saglikDurumu, 
+                    sonVeterinerZiyaretiTarihi, 
+                    alinanAsilar
+                  );
             Navigator.of(context).pop();
-          }, child: const Text("Ekle")),
+                }, 
+                child: const Text("Ekle")
+              ),
         ],
+          );
+        }
       );
     },
   );
@@ -134,7 +199,7 @@ void _showEditPetDialog(BuildContext context, Pet pet, int index) {
   String saglikDurumu = pet.saglikDurumu;
   int yas = pet.yas;
   double agirlik = pet.agirlik;
-  String? sonVeterinerZiyaretiTarihi = pet.sonVeterinerZiyaretiTarihi;
+  DateTime? sonVeterinerZiyaretiTarihi = pet.sonVeterinerZiyaretiTarihi;
   List<String> alinanAsilar = List.from(pet.alinanAsilar);
 
   showDialog(
@@ -183,10 +248,23 @@ void _showEditPetDialog(BuildContext context, Pet pet, int index) {
                 decoration: const InputDecoration(labelText: "Ağırlık"),
                 keyboardType: TextInputType.number
               ),
-              TextField(
-                controller: TextEditingController(text: sonVeterinerZiyaretiTarihi ?? ""),
-                onChanged: (value) { sonVeterinerZiyaretiTarihi = value.isEmpty ? null : value; },
-                decoration: const InputDecoration(labelText: "Son Veteriner Ziyareti Tarihi")
+              ListTile(
+                title: Text(sonVeterinerZiyaretiTarihi == null 
+                  ? "Son Veteriner Ziyareti Tarihi Seçin" 
+                  : "Seçilen Tarih: ${DateFormat('dd/MM/yyyy').format(sonVeterinerZiyaretiTarihi!)}"),
+                trailing: const Icon(Icons.calendar_today),
+                onTap: () async {
+                  final DateTime? secilenTarih = await showDatePicker(
+                    context: context,
+                    initialDate: sonVeterinerZiyaretiTarihi ?? DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime.now(),
+                  );
+                  if (secilenTarih != null) {
+                    sonVeterinerZiyaretiTarihi = secilenTarih;
+                    (context as Element).markNeedsBuild();
+                  }
+                },
               ),
               TextField(
                 controller: TextEditingController(text: alinanAsilar.join(", ")),

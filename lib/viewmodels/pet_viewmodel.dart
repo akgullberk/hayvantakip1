@@ -15,7 +15,7 @@ class PetViewModel extends ChangeNotifier {
       String fotograf,
       double agirlik,
       String saglikDurumu,
-      String? sonVeterinerZiyaretiTarihi,
+      DateTime? sonVeterinerZiyaretiTarihi,
       List<String> alinanAsilar
       ) async {
     final pet = Pet(ad: ad,

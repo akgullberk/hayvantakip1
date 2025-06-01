@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../models/pet_model.dart';
 import '../meal_tracking/meal_tracking_screen.dart';
 import '../health_tracking/health_tracking_screen.dart';
@@ -47,7 +48,9 @@ class PetDetailWidget extends StatelessWidget {
               _buildInfoRow("Sağlık Durumu", pet.saglikDurumu),
               _buildInfoRow(
                 "Son Veteriner Ziyareti",
-                pet.sonVeterinerZiyaretiTarihi ?? "Belirtilmemiş"
+                pet.sonVeterinerZiyaretiTarihi != null 
+                  ? DateFormat('dd/MM/yyyy').format(pet.sonVeterinerZiyaretiTarihi!)
+                  : "Belirtilmemiş"
               ),
               if (pet.alinanAsilar.isNotEmpty)
                 Column(

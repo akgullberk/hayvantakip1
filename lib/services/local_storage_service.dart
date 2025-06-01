@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 import '../models/pet_model.dart';
 import '../models/health_tracking_model.dart';
 
@@ -13,7 +14,7 @@ class LocalStorageService {
     if (_database != null) return _database!;
     _database = await openDatabase(
       join(await getDatabasesPath(), "pet_database.db"),
-      version: 2,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute("""
           CREATE TABLE pets (
@@ -81,57 +82,42 @@ class LocalStorageService {
         """);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
+        if (oldVersion < 3) {
+          await db.execute('ALTER TABLE pets RENAME TO pets_old');
           await db.execute("""
-            CREATE TABLE veteriner_kayitlari (
-              id TEXT PRIMARY KEY,
-              petId TEXT,
-              tarih TEXT,
-              doktorAdi TEXT,
-              aciklama TEXT,
-              notlar TEXT,
-              FOREIGN KEY (petId) REFERENCES pets (ad)
+            CREATE TABLE pets (
+              ad TEXT,
+              tur TEXT,
+              yas INTEGER,
+              cins TEXT,
+              fotograf TEXT,
+              agirlik REAL,
+              saglikDurumu TEXT,
+              sonVeterinerZiyaretiTarihi TEXT,
+              alinanAsilar TEXT
             )
           """);
-
-          await db.execute("""
-            CREATE TABLE asi_kayitlari (
-              id TEXT PRIMARY KEY,
-              petId TEXT,
-              asiAdi TEXT,
-              yapilmaTarihi TEXT,
-              tekrarTarihi TEXT,
-              notlar TEXT,
-              FOREIGN KEY (petId) REFERENCES pets (ad)
-            )
-          """);
-
-          await db.execute("""
-            CREATE TABLE hastalik_kayitlari (
-              id TEXT PRIMARY KEY,
-              petId TEXT,
-              hastalikAdi TEXT,
-              baslangicTarihi TEXT,
-              bitisTarihi TEXT,
-              tedaviDetaylari TEXT,
-              notlar TEXT,
-              FOREIGN KEY (petId) REFERENCES pets (ad)
-            )
-          """);
-
-          await db.execute("""
-            CREATE TABLE ilac_kayitlari (
-              id TEXT PRIMARY KEY,
-              petId TEXT,
-              ilacAdi TEXT,
-              baslangicTarihi TEXT,
-              bitisTarihi TEXT,
-              dozaj TEXT,
-              kullanimSikligi TEXT,
-              notlar TEXT,
-              FOREIGN KEY (petId) REFERENCES pets (ad)
-            )
-          """);
+          
+          final List<Map<String, dynamic>> oldPets = await db.query('pets_old');
+          for (var pet in oldPets) {
+            String? oldDate = pet['sonVeterinerZiyaretiTarihi'] as String?;
+            String? newDate;
+            if (oldDate != null && oldDate.isNotEmpty) {
+              try {
+                final date = DateTime.parse(oldDate);
+                newDate = date.toIso8601String();
+              } catch (e) {
+                newDate = null;
+              }
+            }
+            
+            await db.insert('pets', {
+              ...pet,
+              'sonVeterinerZiyaretiTarihi': newDate,
+            });
+          }
+          
+          await db.execute('DROP TABLE pets_old');
         }
       }
     );
@@ -140,34 +126,36 @@ class LocalStorageService {
 
   Future<void> addPet(Pet pet) async {
     final db = await database;
-    await db.insert("pets", {
-      "ad": pet.ad,
-      "tur": pet.tur,
-      "yas": pet.yas,
-      "cins": pet.cins,
-      "fotograf": pet.fotograf,
-      "agirlik": pet.agirlik,
-      "saglikDurumu": pet.saglikDurumu,
-      "sonVeterinerZiyaretiTarihi": pet.sonVeterinerZiyaretiTarihi,
-      "alinanAsilar": pet.alinanAsilar.join(",")
+    await db.insert('pets', {
+      'ad': pet.ad,
+      'tur': pet.tur,
+      'yas': pet.yas,
+      'cins': pet.cins,
+      'fotograf': pet.fotograf,
+      'agirlik': pet.agirlik,
+      'saglikDurumu': pet.saglikDurumu,
+      'sonVeterinerZiyaretiTarihi': pet.sonVeterinerZiyaretiTarihi?.toIso8601String(),
+      'alinanAsilar': pet.alinanAsilar.join(','),
     });
   }
 
   Future<List<Pet>> getPets() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query("pets");
+    final List<Map<String, dynamic>> maps = await db.query('pets');
     return List.generate(maps.length, (i) {
       final map = maps[i];
       return Pet(
-        ad: map["ad"] as String,
-        tur: map["tur"] as String,
-        yas: map["yas"] as int,
-        cins: map["cins"] as String,
-        fotograf: map["fotograf"] as String,
-        agirlik: map["agirlik"] as double,
-        saglikDurumu: map["saglikDurumu"] as String,
-        sonVeterinerZiyaretiTarihi: map["sonVeterinerZiyaretiTarihi"] as String?,
-        alinanAsilar: (map["alinanAsilar"] as String).split(",").map((e) => e.trim()).toList(),
+        ad: map['ad'],
+        tur: map['tur'],
+        yas: map['yas'],
+        cins: map['cins'],
+        fotograf: map['fotograf'],
+        agirlik: map['agirlik'],
+        saglikDurumu: map['saglikDurumu'],
+        sonVeterinerZiyaretiTarihi: map['sonVeterinerZiyaretiTarihi'] != null 
+          ? DateTime.parse(map['sonVeterinerZiyaretiTarihi'])
+          : null,
+        alinanAsilar: (map['alinanAsilar'] as String).split(',').where((s) => s.isNotEmpty).toList(),
       );
     });
   }
@@ -184,20 +172,20 @@ class LocalStorageService {
   Future<void> updatePet(Pet oldPet, Pet newPet) async {
     final db = await database;
     await db.update(
-      "pets",
+      'pets',
       {
-        "ad": newPet.ad,
-        "tur": newPet.tur,
-        "yas": newPet.yas,
-        "cins": newPet.cins,
-        "fotograf": newPet.fotograf,
-        "agirlik": newPet.agirlik,
-        "saglikDurumu": newPet.saglikDurumu,
-        "sonVeterinerZiyaretiTarihi": newPet.sonVeterinerZiyaretiTarihi,
-        "alinanAsilar": newPet.alinanAsilar.join(",")
+        'ad': newPet.ad,
+        'tur': newPet.tur,
+        'yas': newPet.yas,
+        'cins': newPet.cins,
+        'fotograf': newPet.fotograf,
+        'agirlik': newPet.agirlik,
+        'saglikDurumu': newPet.saglikDurumu,
+        'sonVeterinerZiyaretiTarihi': newPet.sonVeterinerZiyaretiTarihi?.toIso8601String(),
+        'alinanAsilar': newPet.alinanAsilar.join(','),
       },
-      where: "ad = ? AND tur = ? AND cins = ?",
-      whereArgs: [oldPet.ad, oldPet.tur, oldPet.cins],
+      where: 'ad = ?',
+      whereArgs: [oldPet.ad],
     );
   }
 
