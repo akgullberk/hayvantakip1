@@ -39,35 +39,9 @@ class _PetPhotoGalleryScreenState extends State<PetPhotoGalleryScreen> {
       
       await imageFile.copy(hedefYol);
 
-      String? aciklama;
-      if (mounted) {
-        aciklama = await showDialog<String>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Fotoğraf Açıklaması'),
-            content: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Açıklama ekleyin (isteğe bağlı)',
-              ),
-              onSubmitted: (value) => Navigator.of(context).pop(value),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('İptal'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(''),
-                child: const Text('Kaydet'),
-              ),
-            ],
-          ),
-        );
-      }
-
       if (mounted) {
         await Provider.of<PetPhotoViewModel>(context, listen: false)
-          .addPhoto(widget.pet.ad, hedefYol, aciklama: aciklama);
+          .addPhoto(widget.pet.ad, hedefYol);
       }
     }
   }
@@ -100,11 +74,14 @@ class _PetPhotoGalleryScreenState extends State<PetPhotoGalleryScreen> {
               final photo = photos[index];
               return GestureDetector(
                 onTap: () => _showPhotoDetail(context, photo),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    File(photo.photoPath),
-                    fit: BoxFit.cover,
+                child: Hero(
+                  tag: 'photo_${photo.id}',
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      File(photo.photoPath),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               );
@@ -120,58 +97,101 @@ class _PetPhotoGalleryScreenState extends State<PetPhotoGalleryScreen> {
   }
 
   void _showPhotoDetail(BuildContext context, PetPhoto photo) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.file(
-              File(photo.photoPath),
-              fit: BoxFit.contain,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          backgroundColor: Colors.black,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
             ),
-            if (photo.aciklama?.isNotEmpty ?? false)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(photo.aciklama!),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.white),
+                onPressed: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Fotoğrafı Sil'),
+                      content: const Text('Bu fotoğrafı silmek istediğinizden emin misiniz?'),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('İptal'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                          ),
+                          child: const Text('Sil'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed ?? false) {
+                    await Provider.of<PetPhotoViewModel>(context, listen: false)
+                        .deletePhoto(photo.id);
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  }
+                },
               ),
-            ButtonBar(
-              children: [
-                TextButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Fotoğrafı Sil'),
-                        content: const Text('Bu fotoğrafı silmek istediğinizden emin misiniz?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('İptal'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            child: const Text('Sil'),
-                          ),
+            ],
+          ),
+          body: Stack(
+            children: [
+              InteractiveViewer(
+                minScale: 0.5,
+                maxScale: 3.0,
+                child: Center(
+                  child: Hero(
+                    tag: 'photo_${photo.id}',
+                    child: Image.file(
+                      File(photo.photoPath),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+              if (photo.aciklama?.isNotEmpty ?? false)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.8),
+                          Colors.transparent,
                         ],
                       ),
-                    );
-
-                    if (confirmed ?? false) {
-                      await Provider.of<PetPhotoViewModel>(context, listen: false)
-                        .deletePhoto(photo.id);
-                    }
-                  },
-                  child: const Text('Sil'),
+                    ),
+                    child: Text(
+                      photo.aciklama!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Kapat'),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
