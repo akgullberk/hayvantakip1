@@ -80,12 +80,9 @@ class PetListWidget extends StatelessWidget {
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.pets, size: 50);
-                    },
                   ),
                 )
-              : const Icon(Icons.pets, size: 50),
+              : const SizedBox(width: 50, height: 50),
             onTap: () {
               Navigator.push(
                 context,

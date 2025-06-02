@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'viewmodels/pet_viewmodel.dart';
 import 'viewmodels/meal_tracking_viewmodel.dart';
 import 'viewmodels/health_tracking_viewmodel.dart';
+import 'viewmodels/pet_photo_viewmodel.dart';
 
 // Ana ekran importu
 import 'views/home/home_screen.dart';
@@ -29,6 +30,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (context) => HealthTrackingViewModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PetPhotoViewModel(),
         ),
       ],
       child: const MyApp(),

@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../models/pet_model.dart';
 import '../models/health_tracking_model.dart';
+import '../models/pet_photo_model.dart';
 
 class LocalStorageService {
   static Database? _database;
@@ -14,7 +15,7 @@ class LocalStorageService {
     if (_database != null) return _database!;
     _database = await openDatabase(
       join(await getDatabasesPath(), "pet_database.db"),
-      version: 3,
+      version: 4,
       onCreate: (db, version) async {
         await db.execute("""
           CREATE TABLE pets (
@@ -27,6 +28,17 @@ class LocalStorageService {
             saglikDurumu TEXT,
             sonVeterinerZiyaretiTarihi TEXT,
             alinanAsilar TEXT
+          )
+        """);
+
+        await db.execute("""
+          CREATE TABLE pet_photos (
+            id TEXT PRIMARY KEY,
+            petId TEXT,
+            photoPath TEXT,
+            eklenmeTarihi TEXT,
+            aciklama TEXT,
+            FOREIGN KEY (petId) REFERENCES pets (ad)
           )
         """);
 
@@ -118,6 +130,18 @@ class LocalStorageService {
           }
           
           await db.execute('DROP TABLE pets_old');
+        }
+        if (oldVersion < 4) {
+          await db.execute("""
+            CREATE TABLE pet_photos (
+              id TEXT PRIMARY KEY,
+              petId TEXT,
+              photoPath TEXT,
+              eklenmeTarihi TEXT,
+              aciklama TEXT,
+              FOREIGN KEY (petId) REFERENCES pets (ad)
+            )
+          """);
         }
       }
     );
@@ -330,6 +354,42 @@ class LocalStorageService {
       "ilac_kayitlari",
       where: "id = ?",
       whereArgs: [id]
+    );
+  }
+
+  // Pet Fotoğrafları
+  Future<void> addPetPhoto(PetPhoto photo) async {
+    final db = await database;
+    await db.insert('pet_photos', photo.toMap());
+  }
+
+  Future<List<PetPhoto>> getPetPhotos(String petId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'pet_photos',
+      where: 'petId = ?',
+      whereArgs: [petId],
+      orderBy: 'eklenmeTarihi DESC'
+    );
+    return List.generate(maps.length, (i) => PetPhoto.fromMap(maps[i]));
+  }
+
+  Future<void> deletePetPhoto(String photoId) async {
+    final db = await database;
+    await db.delete(
+      'pet_photos',
+      where: 'id = ?',
+      whereArgs: [photoId]
+    );
+  }
+
+  Future<void> updatePetPhoto(PetPhoto photo) async {
+    final db = await database;
+    await db.update(
+      'pet_photos',
+      photo.toMap(),
+      where: 'id = ?',
+      whereArgs: [photo.id]
     );
   }
 } 

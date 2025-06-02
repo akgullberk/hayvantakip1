@@ -4,6 +4,7 @@ import 'dart:io';
 import '../../models/pet_model.dart';
 import '../meal_tracking/meal_tracking_screen.dart';
 import '../health_tracking/health_tracking_screen.dart';
+import '../pet_photos/pet_photo_gallery_screen.dart';
 
 class PetDetailWidget extends StatelessWidget {
   final Pet pet;
@@ -26,14 +27,6 @@ class PetDetailWidget extends StatelessWidget {
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: double.infinity,
-                      height: 200,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.pets, size: 100, color: Colors.grey),
-                    );
-                  },
                 ),
               ),
             ),
@@ -95,40 +88,65 @@ class PetDetailWidget extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Column(
       children: [
-        ElevatedButton.icon(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MealTrackingScreen(
-                  petId: pet.ad,
-                  petName: pet.ad,
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MealTrackingScreen(
+                    petId: pet.ad,
+                    petName: pet.ad,
+                  ),
                 ),
-              ),
-            );
-          },
-          icon: const Icon(Icons.restaurant),
-          label: const Text('Beslenme Takibi'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              );
+            },
+            icon: const Icon(Icons.restaurant),
+            label: const Text('Beslenme Takibi'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
           ),
         ),
-        ElevatedButton.icon(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HealthTrackingScreen(pet: pet),
-              ),
-            );
-          },
-          icon: const Icon(Icons.medical_services),
-          label: const Text('Sağlık Takibi'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HealthTrackingScreen(pet: pet),
+                ),
+              );
+            },
+            icon: const Icon(Icons.medical_services),
+            label: const Text('Sağlık Takibi'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PetPhotoGalleryScreen(pet: pet),
+                ),
+              );
+            },
+            icon: const Icon(Icons.photo_library),
+            label: const Text('Fotoğraf Galerisi'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
           ),
         ),
       ],
